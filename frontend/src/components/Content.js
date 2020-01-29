@@ -15,9 +15,18 @@ class Content extends Component {
 
   renderContent = () => {
     if (this.props.objToEdit) {
-      return <NoteEditor onChangeEdit ={this.props.onChangeEdit} title={this.props.title} body={this.props.body}/>;
+      return <NoteEditor 
+                onChangeEdit ={this.props.onChangeEdit} 
+                onFormSubmit = {this.props.onFormSubmit} 
+                onClickCancelEdit = {this.props.onClickCancelEdit}
+                title={this.props.title} 
+                body={this.props.body}
+              />;
     } else if (this.props.clickedNote) {
-      return <NoteViewer noteObj = {this.props.clickedNote} onClickEdit = {this.props.onClickEdit}/>;
+      return <NoteViewer 
+                noteObj = {this.props.clickedNote} 
+                onClickEdit = {this.props.onClickEdit}
+              />;
     } else {
       return <Instructions />;
     }

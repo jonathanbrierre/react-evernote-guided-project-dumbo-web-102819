@@ -6,7 +6,7 @@ class NoteItem extends React.Component {
     return(
       <li onClick ={(e) => this.props.onClick(e, id)}>
         <h2>{title}</h2>
-        <p>{body}</p>
+        <p>{body.slice(0,40)}...</p>
       </li>
 
     )

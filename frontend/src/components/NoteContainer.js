@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import Search from './Search';
 import Sidebar from './Sidebar';
 import Content from './Content';
+import * as Fetches from '../Adaptors/Adaptor.js';
 
 class NoteContainer extends Component {
   state = {
@@ -22,7 +23,7 @@ class NoteContainer extends Component {
       })
   }
 
-  onClick = (e, id) => {
+  onClickNote = (e, id) => {
     const clicked = this.state.notes.find(note => note.id === id)
     this.setState(prevState => { return {...prevState, clickedNote: clicked, objToEdit: null}})
   }
@@ -33,7 +34,30 @@ class NoteContainer extends Component {
 
   onChangeEdit = (evt) => {
     this.setState({[evt.target.name]: evt.target.value})
-    
+  }
+
+  onFormSubmit = (e) => {
+    e.preventDefault()
+    const {id, user_id} = this.state.clickedNote
+    const {title, body} = this.state
+
+    Fetches.updateNoteFetch(id, title, body, user_id).then(() => {
+        let updatedNotes = this.state.notes.map(note => {
+          if(note.id === id){
+            let newNote = {...note, title: this.state.title, body: this.state.body}
+            this.setState(prevState => { return {...prevState, clickedNote: newNote}})
+            return newNote
+          }else{
+            return note
+          }
+        })
+        
+        this.setState(prevState => {return {...prevState, notes: updatedNotes }})
+      })
+  }
+
+  onClickCancelEdit = (e) => {
+    this.setState(prevState => {return {...prevState, objToEdit: null}})
   }
 
   render() {
@@ -41,14 +65,17 @@ class NoteContainer extends Component {
       <Fragment>
         <Search />
         <div className='container'>
-          <Sidebar onClick ={this.onClick} notes={this.state.notes}/>
+          <Sidebar onClick ={this.onClickNote} notes={this.state.notes}/>
           <Content 
             clickedNote ={this.state.clickedNote} 
             objToEdit ={this.state.objToEdit} 
-            onClickEdit = {this.onClickEdit} 
-            onChangeEdit = {this.onChangeEdit}
             title={this.state.title}
             body={this.state.body}
+            // functions
+            onClickEdit = {this.onClickEdit} 
+            onChangeEdit = {this.onChangeEdit}
+            onFormSubmit = {this.onFormSubmit}
+            onClickCancelEdit = {this.onClickCancelEdit}
           />
         </div>
       </Fragment>
