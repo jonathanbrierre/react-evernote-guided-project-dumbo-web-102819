@@ -1,10 +1,16 @@
 import React from 'react';
 
-const NoteItem = (props) => (
-  <li>
-    <h2>Title</h2>
-    <p>Caption...</p>
-  </li>
-);
+class NoteItem extends React.Component {
+  render(){
+    const {title, body, id} = this.props
+    return(
+      <li onClick ={(e) => this.props.onClick(e, id)}>
+        <h2>{title}</h2>
+        <p>{body}</p>
+      </li>
+
+    )
+  }
+}
 
 export default NoteItem;
