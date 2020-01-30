@@ -10,7 +10,8 @@ class NoteContainer extends Component {
     clickedNote: null,
     objToEdit: null,
     title: '',
-    body: ''
+    body: '',
+    searchTitle: ''
   }
 
   componentDidMount = () => {
@@ -62,22 +63,24 @@ class NoteContainer extends Component {
     this.setState(prevState => {return {...prevState, objToEdit: null}})
   }
 
-  //Make more efficient tomorrow!
-  dynamicSearch = (title) =>{
-    allNotesFetch().then(json =>{
-      let searchResults = json.filter(note => note.title.toLowerCase().includes(title))
-      this.setState(prevState =>{return { ...prevState, notes: searchResults}})
-    })
+  dynamicSearch = () =>{
+      let {searchTitle} = this.state
+      let searchResults = this.state.notes.filter(note => searchTitle.toLowerCase() === note.title.slice(0, searchTitle.length).toLowerCase())
+      return searchResults
+  }
+
+  editSearchTitle = (e) => {
+    this.setState({[e.target.name]: e.target.value})
   }
 
   render() {
     return (
       <Fragment>
-        <Search dynamicSearch = {this.dynamicSearch} />
+        <Search searchTitle ={this.state.searchTitle} editSearchTitle = {this.editSearchTitle} />
         <div className='container'>
           <Sidebar 
             onClick ={this.onClickNote} 
-            notes={this.state.notes}
+            notes={this.dynamicSearch()}
             onClickNewNote = {this.onClickNewNote}
           />
           <Content 
