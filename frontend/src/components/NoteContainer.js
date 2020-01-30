@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import Search from './Search';
 import Sidebar from './Sidebar';
 import Content from './Content';
-import * as Fetches from '../Adaptors/Adaptor.js';
+import { allNotesFetch, updateNoteFetch, createNewNoteFetch } from '../Adaptors/Adaptor.js';
 
 class NoteContainer extends Component {
   state = {
@@ -14,9 +14,7 @@ class NoteContainer extends Component {
   }
 
   componentDidMount = () => {
-    fetch('http://localhost:3000/api/v1/notes')
-      .then(r => r.json())
-      .then(json => {
+      allNotesFetch().then(json => {
         this.setState(prevState => {
           return {...prevState, notes: json}
         } )
@@ -40,8 +38,8 @@ class NoteContainer extends Component {
     e.preventDefault()
     const {id, user_id} = this.state.clickedNote
     const {title, body} = this.state
-
-    Fetches.updateNoteFetch(id, title, body, user_id).then(() => {
+    
+    updateNoteFetch(id, title, body, user_id).then(() => {
         let updatedNotes = this.state.notes.map(note => {
           if(note.id === id){
             let newNote = {...note, title: this.state.title, body: this.state.body}
@@ -51,21 +49,37 @@ class NoteContainer extends Component {
             return note
           }
         })
-        
         this.setState(prevState => {return {...prevState, notes: updatedNotes }})
       })
+  }
+  onClickNewNote = (e) => {
+    createNewNoteFetch().then(json =>{
+      this.setState(prevState =>{ return {...prevState, notes: [...prevState.notes, json]}})
+    })
   }
 
   onClickCancelEdit = (e) => {
     this.setState(prevState => {return {...prevState, objToEdit: null}})
   }
 
+  //Make more efficient tomorrow!
+  dynamicSearch = (title) =>{
+    allNotesFetch().then(json =>{
+      let searchResults = json.filter(note => note.title.toLowerCase().includes(title))
+      this.setState(prevState =>{return { ...prevState, notes: searchResults}})
+    })
+  }
+
   render() {
     return (
       <Fragment>
-        <Search />
+        <Search dynamicSearch = {this.dynamicSearch} />
         <div className='container'>
-          <Sidebar onClick ={this.onClickNote} notes={this.state.notes}/>
+          <Sidebar 
+            onClick ={this.onClickNote} 
+            notes={this.state.notes}
+            onClickNewNote = {this.onClickNewNote}
+          />
           <Content 
             clickedNote ={this.state.clickedNote} 
             objToEdit ={this.state.objToEdit} 
